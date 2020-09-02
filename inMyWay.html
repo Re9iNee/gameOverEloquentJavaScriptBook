@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<head>
+    <title>game Over Page 282</title>
+    <script src="https://eloquentjavascript.net/code/chapter/16_game.js"></script>
+    <script src="https://eloquentjavascript.net/code/levels.js"></script>
+    <link rel="stylesheet" href="https://eloquentjavascript.net/css/game.css">
+</head>
+
+<body>
+
+</body>
+<script>
+    let lives = 3;
+    let canICheck = true;
+    State.prototype.update = function (time, keys) {
+        let actors = this.actors
+            .map(actor => actor.update(time, this, keys));
+        let newState = new State(this.level, actors, this.status);
+
+        if (newState.status != "playing") return newState;
+
+        let player = newState.player;
+        if (canICheck) {
+            if (this.level.touches(player.pos, player.size, "lava")) {
+                canICheck = false;
+                lives--;
+                console.log(`Lives : ${lives}`)
+                if (lives == 0) {
+                    lives = 3;
+                    canICheck = true;
+                    return new State(this.level, actors, "lost");
+                }
+                else {
+                    setTimeout(()=> canICheck = true, 1000)
+                }
+            }
+        }
+
+        for (let actor of actors) {
+            if (actor != player && overlap(actor, player)) {
+                newState = actor.collide(newState);
+            }
+        }
+        return newState;
+    };
+    runGame(GAME_LEVELS, DOMDisplay);
+</script>
+<!-- This is Better -->
